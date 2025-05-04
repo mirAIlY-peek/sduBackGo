@@ -82,7 +82,7 @@ bot.onText(/\/start/, (msg) => {
       reply_markup: {
          keyboard: [
             [{ text: "/events" }, { text: "/relax" }],
-            [{ text: "/help" }]
+            [{ text: "/subscribe" }, { text: "/help" }]
          ],
          resize_keyboard: true,
          one_time_keyboard: false
