@@ -1,16 +1,30 @@
 const Event = require("../models/Event");
 
+const Subscriber = require("../models/Subscriber");
+const TelegramBot = require("node-telegram-bot-api");
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: false });
+
 const createEvent = async (req, res) => {
     try {
         const eventData = req.body;
         eventData.image = req.file ? req.file.path : "";
         const newEvent = new Event(eventData);
         await newEvent.save();
+
+        // Уведомление подписчиков
+        const subscribers = await Subscriber.find();
+        const message = `📢 Новое мероприятие!\n\n${newEvent.title}\n📍 ${newEvent.location}\n🗓️ ${new Date(newEvent.eventDate).toLocaleDateString()}`;
+
+        subscribers.forEach((s) => {
+            bot.sendMessage(s.chatId, message).catch((e) => console.log("Ошибка уведомления:", e));
+        });
+
         res.status(201).json(newEvent);
     } catch (error) {
         res.status(500).json({ error: "Failed to save the event to MongoDB" });
     }
 };
+
 
 const getEvents = async (req, res) => {
     try {

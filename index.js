@@ -92,6 +92,26 @@ bot.onText(/\/start/, (msg) => {
    bot.sendMessage(chatId, welcomeMessage, keyboard);
 });
 
+const Subscriber = require("./models/Subscriber");
+
+bot.onText(/\/subscribe/, async (msg) => {
+   const chatId = msg.chat.id;
+
+   try {
+      const existing = await Subscriber.findOne({ chatId });
+      if (existing) {
+         return bot.sendMessage(chatId, "✅ Вы уже подписаны на уведомления.");
+      }
+
+      await Subscriber.create({ chatId });
+      bot.sendMessage(chatId, "🔔 Вы успешно подписались на уведомления о новых событиях!");
+   } catch (err) {
+      console.error("Ошибка подписки:", err);
+      bot.sendMessage(chatId, "❌ Не удалось подписаться.");
+   }
+});
+
+
 bot.onText(/\/relax/, async (msg) => {
    const chatId = msg.chat.id;
    const prompt = "Хочу отдохнуть и развлечься на мероприятии";
